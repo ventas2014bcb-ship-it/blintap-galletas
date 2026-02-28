@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Tarro de galletas </title>
+  <title>Tarro de galletas</title>
   <style>
     :root{
       --bg1:#081022;
@@ -25,7 +25,6 @@
       color: var(--text);
     }
 
-    /* ✅ Contenedor general un pelín más ancho para que “respire” */
     .wrap{
       width:min(1120px, 94vw);
       display:grid;
@@ -33,7 +32,6 @@
       padding:22px;
     }
 
-    /* ✅ Un “panel grande” de fondo (el que echas en falta) */
     .stage{
       position:relative;
       padding:34px;
@@ -47,7 +45,7 @@
     .stage::before{
       content:"";
       position:absolute;
-      inset:-40px; /* más grande que el contenido */
+      inset:-40px;
       border-radius:34px;
       background:
         radial-gradient(900px 420px at 25% 25%, rgba(255,255,255,.06), rgba(255,255,255,0) 60%),
@@ -61,7 +59,7 @@
       position:relative;
       z-index:1;
       display:grid;
-      grid-template-columns: 1fr 340px; /* ✅ panel derecho algo más ancho */
+      grid-template-columns: 1fr 340px;
       gap:22px;
       align-items:center;
     }
@@ -113,7 +111,6 @@
       pointer-events:none;
     }
 
-    /* ✅ tapa roja (si la quieres mantener) */
     .lid{
       position:absolute;
       top:-52px;
@@ -249,6 +246,7 @@
       font-weight:780;
       line-height:1;
       letter-spacing:-.3px;
+      white-space: nowrap;
     }
     .small{font-size:13px;color:rgba(255,255,255,.65)}
     .bar{
@@ -289,7 +287,7 @@
     .hist-list{
       list-style:none;
       margin:0;
-      padding:10px 10px;
+      padding:10px;
       display:grid;
       gap:8px;
       will-change: transform;
@@ -299,15 +297,17 @@
       align-items:center;
       justify-content:space-between;
       gap:10px;
-      padding:10px 10px;
+      padding:10px;
       border-radius:12px;
       background: rgba(255,255,255,.05);
       border:1px solid rgba(255,255,255,.10);
+      min-width:0; /* ✅ importante para que no “reviente” */
     }
     .hist-left{
       display:grid;
       gap:2px;
       min-width:0;
+      flex: 1 1 auto;
     }
     .hist-date{
       font-size:12px;
@@ -327,19 +327,57 @@
       font-weight:800;
       letter-spacing:.2px;
       white-space:nowrap;
+      flex: 0 0 auto; /* ✅ que no se comprima */
     }
 
-    /* Animación vertical suave cuando hay suficiente contenido */
     @keyframes scrollY {
       0%   { transform: translateY(0); }
       100% { transform: translateY(var(--scrollDistance)); }
     }
 
+    /* ✅ Tablet/ móvil: 1 columna */
     @media (max-width: 920px){
-      .wrap{ width:min(980px, 96vw); }
-      .main{ grid-template-columns: 1fr; }
+      .wrap{ width:min(980px, 96vw); padding:14px; }
+      .stage{ padding:18px; }
+      .main{ grid-template-columns: 1fr; gap:16px; }
       .panel{ order:-1; }
-      .stage{ padding:22px; }
+      .jar-area{ padding:8px 0 0; }
+    }
+
+    /* ✅ Móvil pequeño: escalado real */
+    @media (max-width: 520px){
+      .stage{ padding:14px; border-radius:22px; }
+      .panel{ padding:14px; border-radius:16px; }
+      .big{ font-size:30px; }
+
+      /* tarro responsive */
+      .jar-wrap{
+        width: min(330px, 78vw);
+        height: auto;
+        aspect-ratio: 330 / 460;
+      }
+
+      /* tapa y sombra ajustadas al nuevo tamaño */
+      .lid{
+        width: calc(min(330px, 78vw) * 0.86);
+        height: calc(min(330px, 78vw) * 0.27);
+        top: calc(-1 * (min(330px, 78vw) * 0.16));
+      }
+      .base-shadow{
+        width: calc(min(330px, 78vw) * 0.78);
+      }
+
+      /* histórico más legible, y sin cortes */
+      .hist-window{ height: 160px; }
+      .hist-item{
+        flex-wrap: wrap;
+        align-items:flex-start;
+      }
+      .hist-add{
+        width: 100%;
+        text-align:right;
+        opacity:.95;
+      }
     }
   </style>
 </head>
@@ -387,10 +425,7 @@
     const MAX = 120000;
 
     // ==========
-    // HISTÓRICO (añade aquí las entradas)
-    // - date: "YYYY-MM-DD" o "YYYY-MM-DD HH:MM"
-    // - add: galletas añadidas en esa entrada
-    // - note: opcional (texto)
+    // HISTÓRICO
     // ==========
     const history = [
       { date: "2026-02-27", add: 1310 },
@@ -409,7 +444,6 @@
 
     const space = document.getElementById("space");
     const cover = document.getElementById("cover");
-
     cover.style.height = (100 - percent).toFixed(2) + "%";
 
     // ----- Cookies render -----
@@ -417,7 +451,6 @@
     const H = space.clientHeight;
     const fillPx = (H * percent) / 100;
 
-    // Densidad visual (solo apariencia)
     const visualMax = 95;
     const visualCount = Math.round((count / MAX) * visualMax);
 
@@ -491,7 +524,7 @@
       space.appendChild(c);
     }
 
-    // ----- Historial render + auto-scroll -----
+    // ----- Historial -----
     function formatAdd(n) {
       const sign = n >= 0 ? "+" : "";
       return sign + n.toLocaleString("es-ES");
@@ -501,10 +534,8 @@
       const list = document.getElementById("histList");
       list.innerHTML = "";
 
-      // Ordena por fecha descendente (si tu formato es ISO, esto funciona bien)
       const items = [...history].sort((a,b) => String(b.date).localeCompare(String(a.date)));
 
-      // Render
       for (const it of items) {
         const li = document.createElement("li");
         li.className = "hist-item";
@@ -532,8 +563,6 @@
         list.appendChild(li);
       }
 
-      // Si hay suficiente contenido, activamos scroll suave
-      // (duplicamos la lista para hacer loop sin saltos)
       requestAnimationFrame(() => {
         const windowEl = list.parentElement;
         const contentH = list.scrollHeight;
@@ -549,7 +578,7 @@
           list.appendChild(clone);
 
           requestAnimationFrame(() => {
-            const dist = -(contentH + 10); // sube hasta el final del primer bloque
+            const dist = -(contentH + 10);
             list.style.setProperty("--scrollDistance", dist + "px");
             list.style.animation = `scrollY ${Math.max(14, items.length * 2.2)}s linear infinite`;
           });
