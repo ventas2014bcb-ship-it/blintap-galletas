@@ -24,24 +24,48 @@
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
       color: var(--text);
     }
+
+    /* ✅ Contenedor general un pelín más ancho para que “respire” */
     .wrap{
-      width:min(820px, 92vw);
+      width:min(1120px, 94vw);
       display:grid;
       gap:16px;
       padding:22px;
+    }
+
+    /* ✅ Un “panel grande” de fondo (el que echas en falta) */
+    .stage{
+      position:relative;
+      padding:34px;
+      border-radius:26px;
       background: rgba(255,255,255,.05);
       border:1px solid rgba(255,255,255,.14);
-      border-radius:18px;
       backdrop-filter: blur(10px);
       box-shadow: 0 20px 80px rgba(0,0,0,.38);
+      overflow:hidden;
+    }
+    .stage::before{
+      content:"";
+      position:absolute;
+      inset:-40px; /* más grande que el contenido */
+      border-radius:34px;
+      background:
+        radial-gradient(900px 420px at 25% 25%, rgba(255,255,255,.06), rgba(255,255,255,0) 60%),
+        radial-gradient(900px 420px at 75% 65%, rgba(255,255,255,.05), rgba(255,255,255,0) 60%),
+        linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01));
+      pointer-events:none;
+      opacity:.85;
     }
 
     .main{
+      position:relative;
+      z-index:1;
       display:grid;
-      grid-template-columns: 1fr 260px;
-      gap:18px;
+      grid-template-columns: 1fr 340px; /* ✅ panel derecho algo más ancho */
+      gap:22px;
       align-items:center;
     }
+
     .jar-area{
       display:grid;
       place-items:center;
@@ -89,6 +113,7 @@
       pointer-events:none;
     }
 
+    /* ✅ tapa roja (si la quieres mantener) */
     .lid{
       position:absolute;
       top:-52px;
@@ -98,17 +123,19 @@
       height: 90px;
       border-radius: 26px 26px 22px 22px;
       background:
-        linear-gradient(180deg, rgba(255,255,255,.28), rgba(255,255,255,.10)),
-        radial-gradient(140px 50px at 50% 20%, rgba(255,255,255,.28), rgba(255,255,255,0) 70%);
+        radial-gradient(140px 60px at 50% 18%, rgba(255,255,255,.35), rgba(255,255,255,0) 70%),
+        linear-gradient(180deg, rgba(255,70,70,.95), rgba(180,20,35,.95));
       border:1px solid rgba(255,255,255,.22);
-      box-shadow: 0 14px 28px rgba(0,0,0,.28);
+      box-shadow:
+        0 14px 28px rgba(0,0,0,.28),
+        inset 0 1px 0 rgba(255,255,255,.25);
     }
     .lid:after{
       content:"";
       position:absolute;
       inset: 12px 16px;
       border-radius: 18px;
-      border:1px solid rgba(255,255,255,.18);
+      border:1px solid rgba(255,255,255,.22);
       opacity:.9;
     }
 
@@ -128,12 +155,10 @@
     /* ====== INNER CONTENT ====== */
     .inner{
       position:absolute;
-      /* ✅ Menos margen interno = galletas más cerca del cristal */
       left: 14px;
       right: 14px;
       top: 18px;
       bottom: 16px;
-
       border-radius: 38px 38px 52px 52px;
       overflow:hidden;
     }
@@ -209,14 +234,15 @@
 
     @keyframes appear{ to{ opacity:1; } }
 
-    /* ====== SIDE PANEL ====== */
+    /* ====== RIGHT PANEL ====== */
     .panel{
-      padding:14px;
+      padding:16px;
       border:1px solid rgba(255,255,255,.14);
-      border-radius:16px;
+      border-radius:18px;
       background: rgba(255,255,255,.04);
       display:grid;
       gap:12px;
+      min-height: 220px;
     }
     .big{
       font-size:34px;
@@ -237,51 +263,147 @@
       transition: width 650ms ease;
     }
 
-    @media (max-width: 760px){
+    /* ====== HISTORY ====== */
+    .hist{
+      margin-top:6px;
+      padding-top:10px;
+      border-top:1px solid rgba(255,255,255,.12);
+      display:grid;
+      gap:10px;
+    }
+    .hist-title{
+      font-size:13px;
+      color: rgba(255,255,255,.75);
+      font-weight:650;
+      letter-spacing:.2px;
+    }
+    .hist-window{
+      position:relative;
+      height: 170px;
+      overflow:hidden;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.18);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
+    }
+    .hist-list{
+      list-style:none;
+      margin:0;
+      padding:10px 10px;
+      display:grid;
+      gap:8px;
+      will-change: transform;
+    }
+    .hist-item{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding:10px 10px;
+      border-radius:12px;
+      background: rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.10);
+    }
+    .hist-left{
+      display:grid;
+      gap:2px;
+      min-width:0;
+    }
+    .hist-date{
+      font-size:12px;
+      color: rgba(255,255,255,.70);
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .hist-note{
+      font-size:12px;
+      color: rgba(255,255,255,.55);
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .hist-add{
+      font-weight:800;
+      letter-spacing:.2px;
+      white-space:nowrap;
+    }
+
+    /* Animación vertical suave cuando hay suficiente contenido */
+    @keyframes scrollY {
+      0%   { transform: translateY(0); }
+      100% { transform: translateY(var(--scrollDistance)); }
+    }
+
+    @media (max-width: 920px){
+      .wrap{ width:min(980px, 96vw); }
       .main{ grid-template-columns: 1fr; }
       .panel{ order:-1; }
-      .jar-wrap{ width: 300px; height: 480px; }
+      .stage{ padding:22px; }
     }
   </style>
 </head>
 <body>
   <div class="wrap">
-    <div class="main">
-      <div class="jar-area">
-        <div class="jar-wrap">
-          <div class="lid"></div>
+    <div class="stage">
+      <div class="main">
+        <div class="jar-area">
+          <div class="jar-wrap">
+            <div class="lid"></div>
 
-          <div class="jar" aria-label="Tarro de galletas">
-            <div class="inner" id="inner">
-              <div class="cookie-space" id="space"></div>
-              <div class="cover" id="cover"></div>
-              <div class="glass-fog"></div>
+            <div class="jar" aria-label="Tarro de galletas">
+              <div class="inner" id="inner">
+                <div class="cookie-space" id="space"></div>
+                <div class="cover" id="cover"></div>
+                <div class="glass-fog"></div>
+              </div>
+            </div>
+
+            <div class="base-shadow"></div>
+          </div>
+        </div>
+
+        <aside class="panel">
+          <div class="big"><span id="count">0</span>/<span id="max">0</span></div>
+          <div class="small">Nivel de llenado</div>
+          <div class="bar"><i id="bar"></i></div>
+
+          <div class="hist">
+            <div class="hist-title">Últimas entradas</div>
+            <div class="hist-window">
+              <ul class="hist-list" id="histList"></ul>
             </div>
           </div>
-
-          <div class="base-shadow"></div>
-        </div>
+        </aside>
       </div>
-
-      <aside class="panel">
-        <div class="big"><span id="count">0</span>/120000</div>
-        <div class="small">Nivel de llenado</div>
-        <div class="bar"><i id="bar"></i></div>
-      </aside>
     </div>
   </div>
 
   <script>
     // ==========
-    // AJUSTA ESTO
+    // AJUSTA ESTO (TOTAL ACTUAL)
     // ==========
-    const cookies = 120000; // <-- pon tu número aquí
-
+    const cookies = 4745; // total actual
     const MAX = 120000;
-    const count = Math.max(0, Math.min(MAX, cookies));
 
-    // Stats
+    // ==========
+    // HISTÓRICO (añade aquí las entradas)
+    // - date: "YYYY-MM-DD" o "YYYY-MM-DD HH:MM"
+    // - add: galletas añadidas en esa entrada
+    // - note: opcional (texto)
+    // ==========
+    const history = [
+      { date: "2026-02-27", add: 1310 },
+      { date: "2026-02-26", add: 2100 },
+      { date: "2026-02-24", add: 835 },
+      { date: "2026-02-21", add: 500 },
+    ];
+
+    // ----- Stats -----
+    const count = Math.max(0, Math.min(MAX, cookies));
     document.getElementById("count").textContent = count;
+    document.getElementById("max").textContent = MAX;
+
     const percent = (count / MAX) * 100;
     document.getElementById("bar").style.width = percent.toFixed(2) + "%";
 
@@ -290,12 +412,12 @@
 
     cover.style.height = (100 - percent).toFixed(2) + "%";
 
+    // ----- Cookies render -----
     const W = space.clientWidth;
     const H = space.clientHeight;
-
     const fillPx = (H * percent) / 100;
 
-    // ✅ Un poco más de densidad, pero lo importante aquí es llegar a bordes
+    // Densidad visual (solo apariencia)
     const visualMax = 95;
     const visualCount = Math.round((count / MAX) * visualMax);
 
@@ -306,10 +428,9 @@
     }
     const rnd = seededRandom(count * 999 + 7);
 
-    // ✅ Tarro “más ancho” para permitir llegar al cristal
     function halfWidthAt(yFromBottom) {
-      const yNorm = yFromBottom / H; // 0 abajo, 1 arriba
-      const widen = 0.92 + (1 - yNorm) * 0.08; // antes 0.78..1.0
+      const yNorm = yFromBottom / H;
+      const widen = 0.92 + (1 - yNorm) * 0.08;
       return (W / 2) * widen;
     }
 
@@ -324,11 +445,9 @@
         size = 44 + Math.round(rnd() * 16);
 
         const yFromBottom = (fillPx > 0 ? rnd() * fillPx : 0);
-
         const half = halfWidthAt(yFromBottom);
 
-        // ✅ Menos margen lateral => más pegadas al borde
-        const margin = size * 0.38; // antes 0.52
+        const margin = size * 0.38;
         const xFromCenter = (rnd() * 2 - 1) * Math.max(half - margin, 10);
 
         x = (W / 2) + xFromCenter;
@@ -371,6 +490,74 @@
 
       space.appendChild(c);
     }
+
+    // ----- Historial render + auto-scroll -----
+    function formatAdd(n) {
+      const sign = n >= 0 ? "+" : "";
+      return sign + n.toLocaleString("es-ES");
+    }
+
+    function renderHistory() {
+      const list = document.getElementById("histList");
+      list.innerHTML = "";
+
+      // Ordena por fecha descendente (si tu formato es ISO, esto funciona bien)
+      const items = [...history].sort((a,b) => String(b.date).localeCompare(String(a.date)));
+
+      // Render
+      for (const it of items) {
+        const li = document.createElement("li");
+        li.className = "hist-item";
+
+        const left = document.createElement("div");
+        left.className = "hist-left";
+
+        const date = document.createElement("div");
+        date.className = "hist-date";
+        date.textContent = it.date;
+
+        const note = document.createElement("div");
+        note.className = "hist-note";
+        note.textContent = it.note ? it.note : "Entrada de galletas";
+
+        left.appendChild(date);
+        left.appendChild(note);
+
+        const add = document.createElement("div");
+        add.className = "hist-add";
+        add.textContent = formatAdd(it.add);
+
+        li.appendChild(left);
+        li.appendChild(add);
+        list.appendChild(li);
+      }
+
+      // Si hay suficiente contenido, activamos scroll suave
+      // (duplicamos la lista para hacer loop sin saltos)
+      requestAnimationFrame(() => {
+        const windowEl = list.parentElement;
+        const contentH = list.scrollHeight;
+        const windowH = windowEl.clientHeight;
+
+        list.style.animation = "none";
+        list.style.setProperty("--scrollDistance", "0px");
+
+        if (contentH > windowH + 20) {
+          const clone = list.cloneNode(true);
+          clone.id = "";
+          list.appendChild(document.createElement("div")).style.height = "10px";
+          list.appendChild(clone);
+
+          requestAnimationFrame(() => {
+            const dist = -(contentH + 10); // sube hasta el final del primer bloque
+            list.style.setProperty("--scrollDistance", dist + "px");
+            list.style.animation = `scrollY ${Math.max(14, items.length * 2.2)}s linear infinite`;
+          });
+        }
+      });
+    }
+
+    renderHistory();
   </script>
 </body>
 </html>
